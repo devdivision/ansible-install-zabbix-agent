@@ -1,0 +1,24 @@
+---
+  -  hosts: agentz
+
+     tasks:
+        - name: Zarejestruj hostname
+          command: hostname
+          register: nazwa
+        - name: Konfiguracja pliku
+          template:
+               src: /root/agentz/zabbix_agentd.conf
+               dest: /usr/lib/zabbix/alertscripts/
+        - name: Pętla Dodanie Userparameter
+          lineinfile:
+                path: /usr/lib/zabbix/alertscripts/zabbix_agentd.conf
+                line: "{{ item }}"
+          with_items:
+              - 'UserParameter=extra,ps aux | wc -l'
+              - 'UserParameter=extra,cat /etc/passwd | wc -l'
+
+     vars:
+       adresIP: "192.168.0.100"
+       ListenPort: 10051
+       StartAgents: 5
+       hostname: "{{ nazwa.stdout }}"
